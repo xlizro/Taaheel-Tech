@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body,
+        html {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #000;
+            color: #fff;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0
+        }
+        
+        * {
+            box-sizing: border-box
+        }
+        /* Full-width input fields */
+        
+        input[type=text],
+        input[type=password],
+        input[type=number],
+        textarea,
+        select,
+        fieldset,
+        .inputstyle,
+         :in-range {
+            width: 100%;
+            padding: 15px;
+            margin: 5px 0 22px 0;
+        }
+        
+        hr {
+            border: 1px solid #f1f1f1;
+            margin-bottom: 25px;
+        }
+        /* Set a style for all buttons */
+        
+        button {
+            background-color: #324975;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            opacity: 0.9;
+        }
+        
+        button:hover {
+            opacity: 1;
+        }
+        
+        .signupbtn {
+            float: left;
+            width: 100%;
+        }
+        /* Add padding to container elements */
+        
+        .container {
+            padding: 16px;
+        }
+        
+        .box {
+            margin: auto;
+        }
+        /* Clear floats */
+        
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- background image -->
+    <canvas id="bgCanvas"></canvas>
+    <!-- Scrolling Terrain and Shooting Stars by Loktar source code https://codepen.io/loktar00/pen/DdWxwL  -->
+    <div class="box" style="z-index: 1;position: relative; margin-top: 100px; background-color: rgba(255, 255, 255, 0.208);height: max-content; width: 450px;">
+        <form action="action_page.php" style="  border:1px solid #ccc">
+            <div class="container">
+                <center>
+                    <h1>Sign Up</h1>
+                </center>
+                <p>Please fill in this form to create an account.</p>
+                <hr>
+                <label for="email"><b>Email</b></label>
+                <input type="text" placeholder="Enter Email" name="email" required>
+
+                <label for="psw"><b>Password</b></label>
+                <input type="password" placeholder="Enter Password" name="psw" required>
+
+                <label for="psw-repeat"><b>Repeat Password</b></label>
+                <input type="password" placeholder="Repeat Password" name="psw-repeat" required>
+
+                <!-- <label for="url"><b>Enter your location</b></label>
+                <input type="url" class="inputstyle" placeholder="google map url" name="url" required>
+
+                <label for="file"><b>Files</b></label>
+                <input type="file" class="inputstyle" placeholder="Upload the requested files" name="files" multiple required> -->
+
+                <!-- other types of inputs:
+                1-color 
+                2-date 
+                3-datetime
+                4-month
+                5-week time -->
+
+                <!-- <fieldset>
+                    <legend>Are you familiar with our Youtube Channel?</legend>
+                    <input type="radio" name="grid" id="yes" value="yes" />
+                    <label for="yes">Yes</label>
+                    <input type="radio" name="grid" id="no" value="no" />
+                    <label for="no">No</label>
+                </fieldset> -->
+
+                <!-- <label for="en-level"><b>English level</b></label>
+                <input type="range" placeholder="English level" name="en-level" min="1" max="3" required> -->
+
+                <!-- <label for="age"><b>Age</b></label>
+                <input type="number" placeholder="Enter age" name="age" maxlength="100" minlength="15" required>
+
+                <label for="Suggestion"><b>Suggestion</b></label>
+                <textarea name="suggestion" id="suggestion" cols="30" rows="10"></textarea> -->
+
+
+                <!-- <label>
+                    <input type="radio" name="gender"  id="gender" value="male" style="margin-bottom:15px">l Male
+                    <input type="radio" name="gender"  id="gender" value="female"  style="margin-bottom:15px"> Female
+                </label><br><br> -->
+
+                <!-- <label for="Country"><b>Country</b></label>
+                <select name="Country" id="Country">
+                    <option selected value="Ksa"> Saudi Arabia</option>
+                    <option value="Egypt">Egypt</option>
+                    <option value="Omman">Omman</option>
+                </select> -->
+
+                <label>
+                <input type="checkbox" checked="checked" name="remember" style="margin-bottom:15px"> Remember me
+                </label>
+
+                <p>By creating an account you agree to our <a href="https://policies.google.com/" style="color:dodgerblue">Terms & Privacy</a>.</p>
+
+                <div class="clearfix">
+                    <button type="submit" class="signupbtn">Sign Up</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        (function() {
+            var requestAnimationFrame =
+                window.requestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function(callback) {
+                    window.setTimeout(callback, 1000 / 60);
+                };
+            window.requestAnimationFrame = requestAnimationFrame;
+        })();
+
+        // Terrain stuff.
+        var background = document.getElementById("bgCanvas"),
+            bgCtx = background.getContext("2d"),
+            width = window.innerWidth,
+            height = document.body.offsetHeight;
+
+        height < 400 ? (height = 400) : height;
+
+        background.width = width;
+        background.height = height;
+
+        function Terrain(options) {
+            options = options || {};
+            this.terrain = document.createElement("canvas");
+            this.terCtx = this.terrain.getContext("2d");
+            this.scrollDelay = options.scrollDelay || 90;
+            this.lastScroll = new Date().getTime();
+
+            this.terrain.width = width;
+            this.terrain.height = height;
+            this.fillStyle = options.fillStyle || "#191D4C";
+            this.mHeight = options.mHeight || height;
+
+            // generate
+            this.points = [];
+
+            var displacement = options.displacement || 140,
+                power = Math.pow(2, Math.ceil(Math.log(width) / Math.log(2)));
+
+            // set the start height and end height for the terrain
+            this.points[0] = this.mHeight; //(this.mHeight - (Math.random() * this.mHeight / 2)) - displacement;
+            this.points[power] = this.points[0];
+
+            // create the rest of the points
+            for (var i = 1; i < power; i *= 2) {
+                for (var j = power / i / 2; j < power; j += power / i) {
+                    this.points[j] =
+                        (this.points[j - power / i / 2] + this.points[j + power / i / 2]) / 2 +
+                        Math.floor(Math.random() * -displacement + displacement);
+                }
+                displacement *= 0.6;
+            }
+
+            document.body.appendChild(this.terrain);
+        }
+
+        Terrain.prototype.update = function() {
+            // draw the terrain
+            this.terCtx.clearRect(0, 0, width, height);
+            this.terCtx.fillStyle = this.fillStyle;
+
+            if (new Date().getTime() > this.lastScroll + this.scrollDelay) {
+                this.lastScroll = new Date().getTime();
+                this.points.push(this.points.shift());
+            }
+
+            this.terCtx.beginPath();
+            for (var i = 0; i <= width; i++) {
+                if (i === 0) {
+                    this.terCtx.moveTo(0, this.points[0]);
+                } else if (this.points[i] !== undefined) {
+                    this.terCtx.lineTo(i, this.points[i]);
+                }
+            }
+
+            this.terCtx.lineTo(width, this.terrain.height);
+            this.terCtx.lineTo(0, this.terrain.height);
+            this.terCtx.lineTo(0, this.points[0]);
+            this.terCtx.fill();
+        };
+
+        // Second canvas used for the stars
+        bgCtx.fillStyle = "#05004c";
+        bgCtx.fillRect(0, 0, width, height);
+
+        // stars
+        function Star(options) {
+            this.size = Math.random() * 2;
+            this.speed = Math.random() * 0.05;
+            this.x = options.x;
+            this.y = options.y;
+        }
+
+        Star.prototype.reset = function() {
+            this.size = Math.random() * 2;
+            this.speed = Math.random() * 0.05;
+            this.x = width;
+            this.y = Math.random() * height;
+        };
+
+        Star.prototype.update = function() {
+            this.x -= this.speed;
+            if (this.x < 0) {
+                this.reset();
+            } else {
+                bgCtx.fillRect(this.x, this.y, this.size, this.size);
+            }
+        };
+
+        function ShootingStar() {
+            this.reset();
+        }
+
+        ShootingStar.prototype.reset = function() {
+            this.x = Math.random() * width;
+            this.y = 0;
+            this.len = Math.random() * 80 + 10;
+            this.speed = Math.random() * 10 + 6;
+            this.size = Math.random() * 1 + 0.1;
+            // this is used so the shooting stars arent constant
+            this.waitTime = new Date().getTime() + Math.random() * 3000 + 500;
+            this.active = false;
+        };
+
+        ShootingStar.prototype.update = function() {
+            if (this.active) {
+                this.x -= this.speed;
+                this.y += this.speed;
+                if (this.x < 0 || this.y >= height) {
+                    this.reset();
+                } else {
+                    bgCtx.lineWidth = this.size;
+                    bgCtx.beginPath();
+                    bgCtx.moveTo(this.x, this.y);
+                    bgCtx.lineTo(this.x + this.len, this.y - this.len);
+                    bgCtx.stroke();
+                }
+            } else {
+                if (this.waitTime < new Date().getTime()) {
+                    this.active = true;
+                }
+            }
+        };
+
+        var entities = [];
+
+        // init the stars
+        for (var i = 0; i < height; i++) {
+            entities.push(
+                new Star({
+                    x: Math.random() * width,
+                    y: Math.random() * height
+                })
+            );
+        }
+
+        // Add 2 shooting stars that just cycle.
+        entities.push(new ShootingStar());
+        entities.push(new ShootingStar());
+        entities.push(new Terrain({
+            mHeight: height / 2 - 120
+        }));
+        entities.push(
+            new Terrain({
+                displacement: 120,
+                scrollDelay: 50,
+                fillStyle: "rgb(17,20,40)",
+                mHeight: height / 2 - 60
+            })
+        );
+        entities.push(
+            new Terrain({
+                displacement: 100,
+                scrollDelay: 20,
+                fillStyle: "rgb(10,10,5)",
+                mHeight: height / 2
+            })
+        );
+
+        //animate background
+        function animate() {
+            bgCtx.fillStyle = "#110E19";
+            bgCtx.fillRect(0, 0, width, height);
+            bgCtx.fillStyle = "#ffffff";
+            bgCtx.strokeStyle = "#ffffff";
+
+            var entLen = entities.length;
+
+            while (entLen--) {
+                entities[entLen].update();
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+
+</html>
